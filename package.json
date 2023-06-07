@@ -1,0 +1,22 @@
+{
+  "name": "vue-cesium",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "cesium": "^1.106.1",
+    "element-plus": "^2.3.6",
+    "vue": "^3.2.47"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.1.0",
+    "less": "^4.1.3",
+    "vite": "^4.3.9",
+    "vite-plugin-cesium": "^1.2.22"
+  }
+}
