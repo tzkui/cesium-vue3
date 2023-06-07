@@ -20,6 +20,11 @@ const baseConfig = {
   material: Cesium.Color.GREEN.withAlpha(0.5),
 }
 
+/**
+ * 画线
+ * @param {*} viewer 
+ * @param {*} cb 
+ */
 export const drawLine = function (viewer, cb) {
   if (!(viewer instanceof Cesium.Viewer)) {
     throw new Error("请传入viewer")
@@ -160,4 +165,73 @@ export const removeEntity = function (viewer, cb) {
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
     }
   }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
+}
+
+export const drawLine_3d = function(viewer,cb){
+  if (!(viewer instanceof Cesium.Viewer)) {
+    throw new Error("请传入viewer")
+  }
+  /**实体的唯一标注 */
+  let id = null
+  /**记录拐点坐标 */
+  let positions = [],
+    /**记录返回结果 */
+    codeInfo = [],
+    /**面的hierarchy属性 */
+    polygon = new Cesium.PolygonHierarchy(),
+    _polygonEntity = new Cesium.Entity(),
+    /**面对象配置 */
+    polyObj = null;
+  let handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+  // 鼠标左键点击
+  handler.setInputAction((click) => {
+    id = new Date().getTime();
+    let cartesian = viewer.camera.pickEllipsoid(click.position, viewer.scene.globe.ellipsoid);
+    let cartographic = Cesium.Cartographic.fromCartesian(cartesian, viewer.scene.globe.ellipsoid, new Cesium.Cartographic())
+    let lon = Cesium.Math.toDegrees(cartographic.longitude)
+    let lat = Cesium.Math.toDegrees(cartographic.latitude)
+    console.log(cartesian)
+    if (cartesian && cartesian.x) {
+      if (positions.length === 0) {
+        positions.push(cartesian.clone())
+      }
+      codeInfo.push([lon, lat])
+      positions.push(cartesian.clone());
+      polygon.positions.push(cartesian.clone())
+      if (!polyObj) {
+        _polygonEntity.polyline = {
+          width: baseConfig.borderWidth,
+          material: baseConfig.borderColor,
+          clampToGround: false,
+          positions: new Cesium.CallbackProperty(function () {
+            return positions
+          }, false)
+        }
+        _polygonEntity.name = "line";
+        _polygonEntity._id = id;
+        polyObj = viewer.entities.add(_polygonEntity)
+      }
+    }
+  }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
+  // 鼠标移动
+  handler.setInputAction((movement) => {
+    let cartesian = viewer.camera.pickEllipsoid(movement.endPosition, viewer.scene.globe.ellipsoid);
+    let cartographic = Cesium.Cartographic.fromCartesian(cartesian, viewer.scene.globe.ellipsoid, new Cesium.Cartographic())
+    let lon = Cesium.Math.toDegrees(cartographic.longitude)
+    let lat = Cesium.Math.toDegrees(cartographic.latitude)
+    if (positions.length > 0) {
+      if (cartesian && cartesian.x) {
+        positions.pop();
+        positions.push(cartesian);
+        codeInfo.pop();
+        codeInfo.push([lon, lat]);
+      }
+    }
+  }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
+  // 鼠标右键停止画线
+  handler.setInputAction((click) => {
+    infoDetail.line.push({ id: id, positions: codeInfo })
+    handler.destroy();
+    cb && cb(codeInfo)
+  }, Cesium.ScreenSpaceEventType.RIGHT_CLICK)
 }

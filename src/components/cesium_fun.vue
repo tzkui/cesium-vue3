@@ -1,10 +1,10 @@
 <script setup>
 import * as Cesium from "cesium"
 import { onMounted, ref, reactive, nextTick } from "vue";
-import { 
+import {
   drawLine,
-  drawCircle, 
-  calc_two_point_distance, 
+  drawCircle,
+  calc_two_point_distance,
   removeEntity,
 } from "../utils/cesiumTools.js"
 
@@ -48,7 +48,16 @@ onMounted(() => {
       //   roll: 0,
       // }
     });
-  },1000)
+    viewer.entities.add({
+      polyline: {
+        positions: Cesium.Cartesian3.fromDegreesArray(
+          [-77, 35,
+          -77.1, 35]),
+        width: 5,
+        material: Cesium.Color.RED
+      }
+    })
+  }, 1000)
 
 
   // viewer.imageryLayers.remove(viewer.imageryLayers.get(0));
@@ -63,8 +72,8 @@ function drawCircleF() {
 function removeEntityF() {
   removeEntity(viewer)
 }
-function drawLineF(){
-  drawLine(viewer,function(res){
+function drawLineF() {
+  drawLine(viewer, function (res) {
     console.log(res)
   })
 }
