@@ -199,7 +199,7 @@ export const drawLine_3d = function(viewer,cb){
       positions.push(cartesian.clone());
       polygon.positions.push(cartesian.clone())
       if (!polyObj) {
-        _polygonEntity.polyline = {
+        _polygonEntity.corridor = {
           width: baseConfig.borderWidth,
           material: baseConfig.borderColor,
           clampToGround: false,
